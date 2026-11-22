@@ -139,11 +139,14 @@ def _models() -> list[str]:
             forced = st.secrets.get("GEMINI_MODEL")
         except Exception:
             forced = None
-    return [forced] if forced else DEFAULT_MODELS
+    if forced:
+        # Several models can be given, separated by commas; they are tried in order.
+        return [m.strip() for m in str(forced).split(",") if m.strip()]
+    return DEFAULT_MODELS
 
 
 _RETRYABLE = ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "500", "INTERNAL")
-_SKIP_MODEL = ("404", "NOT_FOUND", "PERMISSION_DENIED", "403", "is not found", "not supported")
+_SKIP_MODEL = ("404", "NOT_FOUND", "PERMISSION_DENIED", "403", "is not found", "not supported", "no longer available")
 
 
 def call_model(prompt: dict, values: dict) -> dict:
@@ -186,7 +189,9 @@ def call_model(prompt: dict, values: dict) -> dict:
                 if any(s in msg for s in _SKIP_MODEL):
                     break  # try the next model
                 if any(s in msg for s in _RETRYABLE):
-                    time.sleep(8 * (attempt + 1))
+                    if attempt == 2:
+                        break  # still busy after 3 tries: move on to the next model
+                    time.sleep(5 * (attempt + 1))
                     continue
                 raise
     raise RuntimeError(f"All models failed. Last error: {last_err}")
