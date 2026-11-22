@@ -1,0 +1,7 @@
+digraph G { rankdir=LR; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C"];
+label="Finova — input / output flow"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
+i1 [label="{income}, {expenses}, {goal},\n{debts}, {language}" fillcolor="#E3EDFF"]; c1 [label="code adds\n{total_expenses}, {surplus}" fillcolor="#E6F6EA"];
+p1 [label="P1 Budget Planner" fillcolor="#FDE8E8"]; o1 [label="JSON: status, question, summary,\nsuggested_savings, budget[ ],\ntips[3], warning" fillcolor="#FFF6DA"];
+i2 [label="{question}, {language}, {level}" fillcolor="#E3EDFF"]; p2 [label="P2 Money Explainer" fillcolor="#FDE8E8"]; o2 [label="Text: 4 parts\n💡 meaning · 🛒 example ·\n⭐ why · ✅ step" fillcolor="#FFF6DA"];
+i3 [label="{message}, {language}" fillcolor="#E3EDFF"]; p3 [label="P3 Scam Checker" fillcolor="#FDE8E8"]; o3 [label="JSON: verdict, risk_score,\nred_flags[ ], explanation,\nwhat_to_do[ ]" fillcolor="#FFF6DA"];
+i1 -> c1 -> p1 -> o1; i2 -> p2 -> o2; i3 -> p3 -> o3; }

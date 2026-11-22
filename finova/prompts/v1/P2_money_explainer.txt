@@ -1,0 +1,9 @@
+# P2 Money Concept Explainer — v1
+# Starting point: one-line instruction, no role, no audience level, no format.
+### SETTINGS
+temperature: default
+output: text
+### SYSTEM
+none
+### USER
+Explain {question} in {language}.

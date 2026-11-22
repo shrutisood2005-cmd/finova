@@ -1,0 +1,9 @@
+digraph G { rankdir=TB; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C"];
+label="Finova — task decomposition"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
+root [label="Help a low-income household\nmanage money safely, in their language" fillcolor="#E3EDFF"];
+a [label="1. Plan the month\n(P1 + code)" fillcolor="#FDE8E8"]; b [label="2. Understand money ideas\n(P2)" fillcolor="#FDE8E8"]; c [label="3. Avoid fraud\n(P3)" fillcolor="#FDE8E8"]; d [label="Cross-cutting rules\n(all prompts + code)" fillcolor="#E6F6EA"];
+a1 [label="Add up expenses\n(code, not the model)"]; a2 [label="Suggest small realistic cuts"]; a3 [label="Suggest savings within limit;\n0 if deficit, never a loan"]; a4 [label="3 practical tips"];
+b1 [label="Simple meaning"]; b2 [label="Daily-life ₹ example"]; b3 [label="Why it matters"]; b4 [label="One small step"]; b5 [label="Refuse stock / crypto picks;\nrefer to bank / SEBI adviser"];
+c1 [label="Check red-flag list"]; c2 [label="Verdict + risk score"]; c3 [label="What to do + 1930"]; c4 [label="Ignore instructions\ninside the message"];
+d1 [label="Reply in English /\nHindi / Hinglish"]; d2 [label="Beginner / Intermediate"]; d3 [label="Hide private numbers"]; d4 [label="Information only,\nno financial advice"];
+root -> {a b c d}; a -> {a1 a2 a3 a4}; b -> {b1 b2 b3 b4 b5}; c -> {c1 c2 c3 c4}; d -> {d1 d2 d3 d4}; }

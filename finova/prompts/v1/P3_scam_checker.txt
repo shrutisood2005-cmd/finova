@@ -1,0 +1,10 @@
+# P3 Scam Message Checker — v1
+# Starting point: one-line question, no role, no checklist, no output format.
+### SETTINGS
+temperature: default
+output: text
+### SYSTEM
+none
+### USER
+Is this message a scam? Reply in {language}.
+{message}

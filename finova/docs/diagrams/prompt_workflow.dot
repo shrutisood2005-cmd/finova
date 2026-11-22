@@ -1,0 +1,18 @@
+digraph G { rankdir=LR; bgcolor=white; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C" fontname="Helvetica" fontsize=9];
+label="Finova — prompt workflow"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
+user [label="User\n(language + level chosen\nin sidebar)" fillcolor="#E3EDFF"];
+mod [label="Choose module\n(tab)" shape=diamond fillcolor="#FFF6DA"];
+pf [label="Privacy filter (code)\nhides OTP / account /\ncard / Aadhaar numbers" fillcolor="#E6F6EA"];
+calc [label="Budget calculator (code)\ntotal expenses, money left" fillcolor="#E6F6EA"];
+p1 [label="P1 Budget Planner\nGemini, temp 0.2, JSON" fillcolor="#FDE8E8"];
+p2 [label="P2 Money Explainer\nGemini, temp 0.3, 2 examples" fillcolor="#FDE8E8"];
+p3 [label="P3 Scam Checker\nGemini, temp 0.1, JSON, 2 examples" fillcolor="#FDE8E8"];
+chk1 [label="Parse JSON +\nsavings check (code)" fillcolor="#E6F6EA"];
+chk3 [label="Parse JSON (code)" fillcolor="#E6F6EA"];
+o1 [label="Budget table, savings,\n3 tips, warning" fillcolor="#E3EDFF"];
+o2 [label="4-part explanation\n💡 🛒 ⭐ ✅" fillcolor="#E3EDFF"];
+o3 [label="Verdict + risk score,\nred flags, what to do" fillcolor="#E3EDFF"];
+user -> pf -> mod;
+mod -> calc [label="Budget"]; calc -> p1 -> chk1 -> o1;
+mod -> p2 [label="Learn"]; p2 -> o2;
+mod -> p3 [label="Scam check"]; p3 -> chk3 -> o3; }
