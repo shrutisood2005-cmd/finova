@@ -12,7 +12,7 @@ Finova is a bilingual (English / Hindi / Hinglish) money helper for low-income h
 
 Supporting code modules: a **privacy filter** that hides OTPs, account, card and Aadhaar-like numbers before anything reaches the model, a **budget calculator** that does all the arithmetic in Python, and an **output checker** that validates the model's JSON and savings figure.
 
-**Prototype:** _paste your Streamlit link here_
+**Prototype:** https://finova-akrzappxzos4km6xhv27xe4.streamlit.app/
 **Model:** Gemini (Flash) through the Google Gemini API (`google-genai` SDK). The app shows the exact model version in the sidebar.
 
 ## Team
