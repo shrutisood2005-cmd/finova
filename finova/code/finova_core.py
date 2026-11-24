@@ -129,24 +129,34 @@ DEFAULT_CEREBRAS_MODELS = ["llama-3.3-70b", "llama3.1-8b"]
 
 def _secret(name: str) -> str | None:
     val = os.environ.get(name)
-    if val:
-        return val
-    try:
-        import streamlit as st
-        return st.secrets.get(name)
-    except Exception:
+    if not val:
+        try:
+            import streamlit as st
+            val = st.secrets.get(name)
+        except Exception:
+            val = None
+    if not val:
         return None
+    val = str(val).strip().strip('"').strip("'").strip()
+    if val.lower().startswith("bearer "):
+        val = val[7:].strip()
+    return val or None
 
 
 def _api_key() -> str | None:
     return _secret("GEMINI_API_KEY")
 
 
+def _clean_model(m: str) -> str:
+    m = m.strip().strip('"').strip("'").replace("\U0001f193", ":free").replace(" ", "")
+    return m.replace("::free", ":free")
+
+
 def _model_list(var: str, default: list[str]) -> list[str]:
     forced = _secret(var)
     if forced:
         # Several models can be given, separated by commas; they are tried in order.
-        return [m.strip() for m in str(forced).split(",") if m.strip()]
+        return [_clean_model(m) for m in str(forced).split(",") if m.strip()]
     return default
 
 
@@ -173,7 +183,8 @@ def _openai_compat_call(url: str, model: str, key: str, system: str | None, user
     req = urllib.request.Request(
         url,
         data=json.dumps(body).encode("utf-8"),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "finova/1.0"},
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "finova/1.0",
+                 "HTTP-Referer": "https://github.com/shrutisood2005-cmd/finova", "X-Title": "Finova"},
         method="POST",
     )
     try:
