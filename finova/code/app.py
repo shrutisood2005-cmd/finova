@@ -1,6 +1,6 @@
 """Finova — money help in your language. Streamlit prototype for SCSE4041 Milestone 2.
 
-Run locally:  streamlit run code/app.py   (with GEMINI_API_KEY in .streamlit/secrets.toml or env)
+Run locally:  streamlit run code/app.py   (with GROQ_API_KEY and/or GEMINI_API_KEY in .streamlit/secrets.toml or env)
 """
 import sys
 from pathlib import Path

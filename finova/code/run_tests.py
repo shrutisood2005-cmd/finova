@@ -1,7 +1,7 @@
 """Run every prompt version on the test inputs, save real outputs and compute simple checks.
 
 Usage (from the repo root):
-    export GEMINI_API_KEY=...            # Windows PowerShell: $env:GEMINI_API_KEY="..."
+    set GROQ_API_KEY=...  (Windows CMD)  or  export GROQ_API_KEY=...   # optional: GROQ_MODEL, GEMINI_API_KEY
     python code/run_tests.py             # all versions v1, v2, v3 on all 13 tests (39 calls)
     python code/run_tests.py --versions v3 --sleep 6
 

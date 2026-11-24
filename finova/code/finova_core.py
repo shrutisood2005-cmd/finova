@@ -19,7 +19,7 @@ PROMPT_FILES = {
     "P3": "P3_scam_checker.txt",
 }
 
-# Models tried in order. Set GEMINI_MODEL (Streamlit secret or env var) to force one.
+# Gemini models tried in order (used only if GEMINI_API_KEY is set). Set GEMINI_MODEL to override.
 DEFAULT_MODELS = ["gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest"]
 
 
@@ -120,69 +120,127 @@ def check_budget(result: dict, nums: dict) -> list[str]:
 
 
 # ------------------------------------------------------------- model call
-def _api_key() -> str | None:
-    key = os.environ.get("GEMINI_API_KEY")
-    if key:
-        return key
+# Provider order: Cerebras (CEREBRAS_API_KEY), then Groq (GROQ_API_KEY), then OpenRouter (OPENROUTER_API_KEY), then Gemini (GEMINI_API_KEY);
+# only providers with a key are used. Users of the app never need an account.
+DEFAULT_GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
+DEFAULT_OPENROUTER_MODELS = ["meta-llama/llama-3.3-70b-instruct:free"]
+DEFAULT_CEREBRAS_MODELS = ["llama-3.3-70b", "llama3.1-8b"]
+
+
+def _secret(name: str) -> str | None:
+    val = os.environ.get(name)
+    if val:
+        return val
     try:
         import streamlit as st
-        return st.secrets.get("GEMINI_API_KEY")
+        return st.secrets.get(name)
     except Exception:
         return None
 
 
-def _models() -> list[str]:
-    forced = os.environ.get("GEMINI_MODEL")
-    if not forced:
-        try:
-            import streamlit as st
-            forced = st.secrets.get("GEMINI_MODEL")
-        except Exception:
-            forced = None
+def _api_key() -> str | None:
+    return _secret("GEMINI_API_KEY")
+
+
+def _model_list(var: str, default: list[str]) -> list[str]:
+    forced = _secret(var)
     if forced:
         # Several models can be given, separated by commas; they are tried in order.
         return [m.strip() for m in str(forced).split(",") if m.strip()]
-    return DEFAULT_MODELS
+    return default
 
 
-_RETRYABLE = ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "500", "INTERNAL")
-_SKIP_MODEL = ("404", "NOT_FOUND", "PERMISSION_DENIED", "403", "is not found", "not supported", "no longer available")
+def _models() -> list[str]:
+    return _model_list("GEMINI_MODEL", DEFAULT_MODELS)
+
+
+_RETRYABLE = ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "500", "502", "INTERNAL", "rate_limit", "timed out")
+_SKIP_MODEL = ("404", "NOT_FOUND", "PERMISSION_DENIED", "403", "is not found", "not supported",
+               "no longer available", "model_not_found", "decommissioned", "does not exist")
+
+
+def _openai_compat_call(url: str, model: str, key: str, system: str | None, user: str, temperature, want_json: bool) -> str:
+    """One call to an OpenAI-compatible chat API such as Groq or OpenRouter (standard library only)."""
+    import urllib.request
+    import urllib.error
+
+    messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
+    body = {"model": model, "messages": messages}
+    if temperature is not None:
+        body["temperature"] = temperature
+    if want_json:
+        body["response_format"] = {"type": "json_object"}
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "finova/1.0"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:400]
+        raise RuntimeError(f"{e.code} {detail}") from None
+    return (data["choices"][0]["message"]["content"] or "").strip()
+
+
+def _groq_call(model, key, system, user, temperature, want_json):
+    return _openai_compat_call("https://api.groq.com/openai/v1/chat/completions", model, key, system, user, temperature, want_json)
+
+
+def _openrouter_call(model, key, system, user, temperature, want_json):
+    return _openai_compat_call("https://openrouter.ai/api/v1/chat/completions", model, key, system, user, temperature, want_json)
+
+
+def _cerebras_call(model, key, system, user, temperature, want_json):
+    return _openai_compat_call("https://api.cerebras.ai/v1/chat/completions", model, key, system, user, temperature, want_json)
+
+
+def _gemini_call(model: str, key: str, system: str | None, user: str, temperature, want_json: bool) -> str:
+    from google import genai
+    from google.genai import types
+
+    cfg = {}
+    if system:
+        cfg["system_instruction"] = system
+    if temperature is not None:
+        cfg["temperature"] = temperature
+    if want_json:
+        cfg["response_mime_type"] = "application/json"
+    client = genai.Client(api_key=key)
+    resp = client.models.generate_content(model=model, contents=user,
+                                          config=types.GenerateContentConfig(**cfg) if cfg else None)
+    return (resp.text or "").strip()
 
 
 def call_model(prompt: dict, values: dict) -> dict:
     """Run one prompt. Returns {text, model, seconds, system, user}."""
-    from google import genai
-    from google.genai import types
-
-    key = _api_key()
-    if not key:
-        raise RuntimeError("GEMINI_API_KEY is not set. Add it to Streamlit secrets or your environment.")
-    client = genai.Client(api_key=key)
-
     system = fill(prompt["system"], values)
     user = fill(prompt["user"], values)
-    cfg = {}
-    if system:
-        cfg["system_instruction"] = system
-    if prompt["temperature"] is not None:
-        cfg["temperature"] = prompt["temperature"]
-    if prompt["json"]:
-        cfg["response_mime_type"] = "application/json"
-    config = types.GenerateContentConfig(**cfg) if cfg else None
+
+    plans = []
+    groq_key, or_key, gemini_key = _secret("GROQ_API_KEY"), _secret("OPENROUTER_API_KEY"), _api_key()
+    cb_key = _secret("CEREBRAS_API_KEY")
+    if cb_key:
+        plans += [("Cerebras", _cerebras_call, m, cb_key) for m in _model_list("CEREBRAS_MODEL", DEFAULT_CEREBRAS_MODELS)]
+    if groq_key:
+        plans += [("Groq", _groq_call, m, groq_key) for m in _model_list("GROQ_MODEL", DEFAULT_GROQ_MODELS)]
+    if or_key:
+        plans += [("OpenRouter", _openrouter_call, m, or_key) for m in _model_list("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODELS)]
+    if gemini_key:
+        plans += [("Gemini", _gemini_call, m, gemini_key) for m in _models()]
+    if not plans:
+        raise RuntimeError("No API key found. Set CEREBRAS_API_KEY, GROQ_API_KEY, OPENROUTER_API_KEY or GEMINI_API_KEY in Streamlit secrets or your environment.")
 
     last_err = None
-    for model in _models():
+    for provider, fn, model, key in plans:
         for attempt in range(3):
             try:
                 t0 = time.time()
-                resp = client.models.generate_content(model=model, contents=user, config=config)
-                return {
-                    "text": (resp.text or "").strip(),
-                    "model": getattr(resp, "model_version", None) or model,
-                    "seconds": round(time.time() - t0, 1),
-                    "system": system,
-                    "user": user,
-                }
+                text = fn(model, key, system, user, prompt["temperature"], prompt["json"])
+                return {"text": text, "model": f"{model} ({provider})", "seconds": round(time.time() - t0, 1),
+                        "system": system, "user": user}
             except Exception as e:  # noqa: BLE001
                 msg = str(e)
                 last_err = e
@@ -193,6 +251,8 @@ def call_model(prompt: dict, values: dict) -> dict:
                         break  # still busy after 3 tries: move on to the next model
                     time.sleep(5 * (attempt + 1))
                     continue
+                if provider in ("Cerebras", "Groq", "OpenRouter"):
+                    break  # unexpected Groq error: fall back to the next option
                 raise
     raise RuntimeError(f"All models failed. Last error: {last_err}")
 
