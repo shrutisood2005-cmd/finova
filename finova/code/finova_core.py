@@ -234,6 +234,7 @@ def call_model(prompt: dict, values: dict) -> dict:
         raise RuntimeError("No API key found. Set CEREBRAS_API_KEY, GROQ_API_KEY, OPENROUTER_API_KEY or GEMINI_API_KEY in Streamlit secrets or your environment.")
 
     last_err = None
+    errors = []
     for provider, fn, model, key in plans:
         for attempt in range(3):
             try:
@@ -244,6 +245,8 @@ def call_model(prompt: dict, values: dict) -> dict:
             except Exception as e:  # noqa: BLE001
                 msg = str(e)
                 last_err = e
+                if attempt == 0 or any(s in msg for s in _SKIP_MODEL):
+                    errors.append(f"{provider} {model}: {msg[:160]}")
                 if any(s in msg for s in _SKIP_MODEL):
                     break  # try the next model
                 if any(s in msg for s in _RETRYABLE):
@@ -254,7 +257,8 @@ def call_model(prompt: dict, values: dict) -> dict:
                 if provider in ("Cerebras", "Groq", "OpenRouter"):
                     break  # unexpected Groq error: fall back to the next option
                 raise
-    raise RuntimeError(f"All models failed. Last error: {last_err}")
+    tried = ", ".join(sorted({p for p, *_ in plans}))
+    raise RuntimeError(f"All models failed (providers tried: {tried}). Errors: " + " | ".join(errors[-6:]) if errors else f"All models failed. Last error: {last_err}")
 
 
 # ------------------------------------------------------------ parsing
