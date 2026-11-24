@@ -2,7 +2,13 @@
 
 All changes since Milestone 1. Dates are YYYY-MM-DD. Add a line for every change you make.
 
+## 2026-11-24
+- Ran all 13 tests on v1, v2 and v3 of P1–P3 with the web app Test runner (v1: 1/13, v2: 8/13, v3: 11/13 fully passed). Results saved in `finova/test-data/outputs/test_runner_results.md`.
+- Updated the prompt workflow and system architecture diagrams to match the web app.
+
 ## 2026-11-22
+- Deployed the Streamlit app; the free Gemini 3.8 Flash model returned 404 (old model names) and 503 (high demand) errors. Added a model-fallback setting in `finova_core.py`.
+- Added `code/web_app.html`: the same 3 prompts (all versions), privacy filter, budget calculator and output checker, running on Claude, with a built-in test runner. This is the main prototype link.
 - Split the single Milestone 1 baseline prompt into three focused prompts: P1 Budget Planner, P2 Money Concept Explainer, P3 Scam Message Checker.
 - Saved prompt versions v1, v2, v3 for each prompt in `prompts/v1`, `prompts/v2`, `prompts/v3`; final prompts in `prompts/final`. P1 v1 is the Milestone 1 baseline prompt, unchanged.
 - P1: added a JSON output schema and language rule (v2); moved all arithmetic into Python, added deficit and no-loan rules, 1 worked example and temperature 0.2 (v3).

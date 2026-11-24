@@ -1,7 +1,11 @@
 digraph G { rankdir=LR; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C" fontname="Helvetica" fontsize=9];
 label="Finova — system architecture"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
 u [label="User's phone /\nbrowser" fillcolor="#E3EDFF"];
-subgraph cluster_s { label="Streamlit Community Cloud"; style="rounded,dashed"; color="#5B6B8C"; fontname="Helvetica";
- app [label="app.py\n(UI: 3 tabs + sidebar)"]; core [label="finova_core.py\nprivacy filter · budget maths ·\nprompt loader · JSON checks" fillcolor="#E6F6EA"]; pr [label="prompts/final/\nP1, P2, P3 .txt" fillcolor="#FDE8E8"]; sec [label="Secrets\nGEMINI_API_KEY" shape=cylinder fillcolor="#FFF6DA"]; }
-g [label="Google Gemini API\n(Flash model)" fillcolor="#FDE8E8"]; gh [label="GitHub repo\n(prompts, code, tests, docs)" fillcolor="#E3EDFF"];
-u -> app [label="inputs"]; app -> core; core -> pr [label="load"]; core -> sec [style=dashed]; core -> g [label="masked prompt"]; g -> core [label="text / JSON"]; core -> app; app -> u [label="result"]; gh -> app [label="auto-deploy" style=dashed]; }
+subgraph cluster_w { label="Finova web app (code/web_app.html, hosted on claude.ai)"; labelloc=b; style="rounded,dashed"; color="#5B6B8C"; fontname="Helvetica";
+ ui [label="UI: Budget · Learn · Scam ·\nTest runner tabs + sidebar\n(language, level, prompt version)"];
+ core [label="Privacy filter · budget maths ·\nJSON parsing · output checker\n(JavaScript, same rules as\nfinova_core.py)" fillcolor="#E6F6EA"];
+ pr [label="Prompts P1, P2, P3\nv1, v2, v3 (from prompts/)" fillcolor="#FDE8E8"]; }
+c [label="Claude model\n(quick tier, via page host;\nno API key in the page)" fillcolor="#FDE8E8"];
+gh [label="GitHub repo\n(prompts, code, tests, docs;\nsame prompt files)" fillcolor="#E3EDFF"];
+s [label="Second version: Streamlit app\n(code/app.py) on Gemini API" fillcolor="#FFF6DA" style="rounded,filled,dashed"];
+u -> ui [label="inputs"]; ui -> core; core -> pr [label="load"]; core -> c [label="masked prompt"]; c -> core [label="text / JSON"]; core -> ui; ui -> u [label="result"]; gh -> s [style=dashed]; }

@@ -1,4 +1,4 @@
-digraph G { rankdir=TB; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C"];
+digraph G { rankdir=LR; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C"];
 label="Finova — task decomposition"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
 root [label="Help a low-income household\nmanage money safely, in their language" fillcolor="#E3EDFF"];
 a [label="1. Plan the month\n(P1 + code)" fillcolor="#FDE8E8"]; b [label="2. Understand money ideas\n(P2)" fillcolor="#FDE8E8"]; c [label="3. Avoid fraud\n(P3)" fillcolor="#FDE8E8"]; d [label="Cross-cutting rules\n(all prompts + code)" fillcolor="#E6F6EA"];

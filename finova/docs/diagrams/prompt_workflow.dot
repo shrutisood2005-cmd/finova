@@ -1,12 +1,12 @@
-digraph G { rankdir=LR; bgcolor=white; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C" fontname="Helvetica" fontsize=9];
+digraph G { rankdir=TB; bgcolor=white; node [shape=box style="rounded,filled" fillcolor="#F4F6FA" color="#5B6B8C" fontname="Helvetica" fontsize=11]; edge [color="#5B6B8C" fontname="Helvetica" fontsize=9];
 label="Finova — prompt workflow"; labelloc=t; fontname="Helvetica-Bold"; fontsize=14;
 user [label="User\n(language + level chosen\nin sidebar)" fillcolor="#E3EDFF"];
 mod [label="Choose module\n(tab)" shape=diamond fillcolor="#FFF6DA"];
 pf [label="Privacy filter (code)\nhides OTP / account /\ncard / Aadhaar numbers" fillcolor="#E6F6EA"];
 calc [label="Budget calculator (code)\ntotal expenses, money left" fillcolor="#E6F6EA"];
-p1 [label="P1 Budget Planner\nGemini, temp 0.2, JSON" fillcolor="#FDE8E8"];
-p2 [label="P2 Money Explainer\nGemini, temp 0.3, 2 examples" fillcolor="#FDE8E8"];
-p3 [label="P3 Scam Checker\nGemini, temp 0.1, JSON, 2 examples" fillcolor="#FDE8E8"];
+p1 [label="P1 Budget Planner\nClaude, JSON output" fillcolor="#FDE8E8"];
+p2 [label="P2 Money Explainer\nClaude, 2 examples" fillcolor="#FDE8E8"];
+p3 [label="P3 Scam Checker\nClaude, JSON, 2 examples" fillcolor="#FDE8E8"];
 chk1 [label="Parse JSON +\nsavings check (code)" fillcolor="#E6F6EA"];
 chk3 [label="Parse JSON (code)" fillcolor="#E6F6EA"];
 o1 [label="Budget table, savings,\n3 tips, warning" fillcolor="#E3EDFF"];

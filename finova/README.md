@@ -12,15 +12,17 @@ Finova is a bilingual (English / Hindi / Hinglish) money helper for low-income h
 
 Supporting code modules: a **privacy filter** that hides OTPs, account, card and Aadhaar-like numbers before anything reaches the model, a **budget calculator** that does all the arithmetic in Python, and an **output checker** that validates the model's JSON and savings figure.
 
-**Prototype:** _paste your Streamlit link here_
+**Prototype (main, for evaluation):** https://claude.ai/artifact/9LtncNkjkg1EKzgSGUVP2g — Finova web app (`finova/code/web_app.html`). Runs prompts P1–P3 on Claude and includes a Test runner tab. Sign in with a free claude.ai account and click Allow the first time the app asks to use Claude.
+
+**Second version:** Streamlit app on the Gemini API (`finova/code/app.py`): https://finova-akrzappxzos4km6xhv27xe4.streamlit.app/ . It works, but the free Gemini model often returned 503 "high demand" errors on 22 Nov 2026, so the web app is the main prototype.
 **Model:** Gemini (Flash) through the Google Gemini API (`google-genai` SDK). The app shows the exact model version in the sidebar.
 
 ## Team
 
 | Name | Enrollment no. | Main task |
 |---|---|---|
-| Shruti Sood | S24CSEU1158 | _fill in_ |
-| Pranav Mehta | S24CSEU1164 | _fill in_ |
+| Shruti Sood | S24CSEU1158 | Team leader, prompt design, app |
+| Pranav Mehta | S24CSEU1164 | Testing, repository, reel |
 
 ## Repository layout
 
